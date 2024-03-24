@@ -89,7 +89,7 @@
                     // Check if the next line has numbers
                     if (i + 1 < lines.length && /^\d/.test(lines[i + 1].trim())) {
                         i++; // Skip the next line
-                        parseCellData(lines, i, ueData);
+                        parseCellData(lines, i, ueData, xAxisLabels.length - 1); // 传递时间戳索引
                     }
                 }
             }
@@ -101,7 +101,7 @@
             document.getElementById('output').innerHTML = output;
         }
 
-        function parseCellData(lines, index, ueData) {
+        function parseCellData(lines, index, ueData, timestampIndex) {
             console.log("Parsing Cell Data at Line " + (index + 1) + ": ", lines[index]);
             var values = lines[index].trim().split(/\s+/);
             var ueId = values[0];
@@ -116,7 +116,7 @@
                 if (!ueData[ueId]) {
                     ueData[ueId] = [];
                 }
-                ueData[ueId].push(ul_bler);
+                ueData[ueId].push({x: timestampIndex, y: ul_bler}); // 存储对象而非值
             }
 
             var output = "";
@@ -172,7 +172,7 @@
                     if (!ueData[ueId]) {
                         ueData[ueId] = [];
                     }
-                    ueData[ueId].push(ul_bler);
+                    ueData[ueId].push({x: timestampIndex, y: ul_bler}); // 存储对象而非值
                 }
 
                 output += "<span class='ue-id'>UE-ID=" + ueId + "</span>ACK-TB[0]=" + ACK_TB0 + "NACK-TB[0]=" +
@@ -224,6 +224,12 @@
                         title: {
                             display: true,
                             text: 'UL-BLER for Different UE-IDs'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
                         }
                     }
                 }
