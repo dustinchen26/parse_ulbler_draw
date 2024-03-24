@@ -1,9 +1,7 @@
-<!-- 
-  Copyright © [2023] [Dustin_Chen]. All rights reserved.
-  Author: Dustin_Chen
-  Email:  Dustin_Chen@compal.com or chuhpsdustin@gmail.com
--->
-
+修改底下html的橫軸，
+每當文件讀到新的                       GNB DU Statistics  Sun Mar 24 08:11:10 2024，就把GNB DU Statistics  後面的時間當做橫軸，
+如果沒有就承襲舊的時間，
+列出完整修改後html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -71,17 +69,16 @@
 
             // 儲存不同UE-ID的UL-BLER數據
             var ueData = {};
-            var xAxisLabels = []; // 新增空陣列用於存儲橫軸標籤
 
             // 遍歷每一行
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
                 console.log("Processing Line " + (i + 1) + ":", line);
 
-                //檢查是否包含"GNB DU Statistics  "
-                if (line.startsWith("GNB DU Statistics  ")) {
-            var timestamp = line.substring(19); // 提取時間戳，從第 19 個字符開始
-                    xAxisLabels.push(timestamp); // 將時間戳添加到橫軸標籤陣列中
+                //檢查是否包含"GNBDUStatistics"
+                if (line.startsWith("GNBDUStatistics")) {
+                    //Newtimestamp,clearueDatafornexttimestamp
+                    ueData = {};
                     continue;
                 }
                 // 檢查是否包含 "UE-ID CELL-ID ON-SUL"
@@ -95,7 +92,7 @@
             }
 
             // Generate chart for UL-BLER
-            generateChart(ueData, xAxisLabels); // 將橫軸標籤傳遞給生成圖表的函數
+            generateChart(ueData);
 
             // 將結果添加到HTML中
             document.getElementById('output').innerHTML = output;
@@ -189,7 +186,7 @@
         }
 
 
-    function generateChart(ueData, xAxisLabels) {
+        function generateChart(ueData) {
             // 销毁已存在的图表
             var existingChart = Chart.getChart("ul-bler-chart");
             if (existingChart) {
@@ -215,7 +212,9 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                labels: xAxisLabels, // 使用動態生成的橫軸標籤
+                    labels: Array.from({
+                        length: datasets[0].data.length
+                    }, (_, i) => i + 1), // Assuming data length is the same for all UE-IDs
                     datasets: datasets
                 },
                 options: {
@@ -251,8 +250,7 @@
     </ul>
 <div style="max-width: 800px; margin: 0 auto; text-align: left;">
     <div style="display: inline-block;">
-        <canvas id="ul-bler-chart" width="800" height="450" style="width: 800px; height: 450px;"></canvas>
-
+        <canvas id="ul-bler-chart" width="600" height="350" style="width: 600px; height: 350px;"></canvas>
     </div>
 </div>
 
