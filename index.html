@@ -58,46 +58,46 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function parseContent() {
-            // 獲取輸入的文本區域內容
+    // 获取输入的文本区域内容
             var inputText = document.getElementById('inputTextArea').value;
             console.log("Input Text:", inputText);
 
-            // 將文本按行分割
+    // 将文本按行分割
             var lines = inputText.split('\n');
             console.log("Number of Lines:", lines.length);
 
-            // 存儲解析結果的字符串
+    // 存储解析结果的字符串
             var output = "";
 
-            // 儲存不同UE-ID的UL-BLER數據
+    // 存储不同UE-ID的UL-BLER数据
             var ueData = {};
-            var xAxisLabels = []; // 新增空陣列用於存儲橫軸標籤
+    var timestamps = []; // 存储横坐标时间戳的数组
 
-            // 遍歷每一行
+    // 遍历每一行
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
                 console.log("Processing Line " + (i + 1) + ":", line);
 
-                //檢查是否包含"GNB DU Statistics  "
+        //检查是否包含"GNB DU Statistics  "
                 if (line.startsWith("GNB DU Statistics  ")) {
-            var timestamp = line.substring(19); // 提取時間戳，從第 19 個字符開始
-                    xAxisLabels.push(timestamp); // 將時間戳添加到橫軸標籤陣列中
+            var timestamp = line.substring(19); // 提取时间戳，从第 19 个字符开始
+            timestamps.push(timestamp); // 将时间戳添加到横坐标时间戳数组中
                     continue;
                 }
-                // 檢查是否包含 "UE-ID CELL-ID ON-SUL"
+        // 检查是否包含 "UE-ID CELL-ID ON-SUL"
                 if (line.includes("UE-ID   CELL-ID   ON-SUL")) {
                     // Check if the next line has numbers
                     if (i + 1 < lines.length && /^\d/.test(lines[i + 1].trim())) {
                         i++; // Skip the next line
-                        parseCellData(lines, i, ueData, xAxisLabels.length - 1); // 传递时间戳索引
+                parseCellData(lines, i, ueData, timestamps.length - 1); // 传递时间戳索引
                     }
                 }
             }
 
             // Generate chart for UL-BLER
-            generateChart(ueData, xAxisLabels); // 將橫軸標籤傳遞給生成圖表的函數
+    generateChart(ueData, timestamps); // 将横坐标时间戳传递给生成图表的函数
 
-            // 將結果添加到HTML中
+    // 将结果添加到HTML中
             document.getElementById('output').innerHTML = output;
         }
 
@@ -116,7 +116,10 @@
                 if (!ueData[ueId]) {
                     ueData[ueId] = [];
                 }
-                ueData[ueId].push({x: timestampIndex, y: ul_bler}); // 存储对象而非值
+                ueData[ueId].push({
+x:timestampIndex,
+y:ul_bler
+});//存储对象而非值
             }
 
             var output = "";
@@ -172,7 +175,10 @@
                     if (!ueData[ueId]) {
                         ueData[ueId] = [];
                     }
-                    ueData[ueId].push({x: timestampIndex, y: ul_bler}); // 存储对象而非值
+             ueData[ueId].push({
+x:timestampIndex,
+y:ul_bler
+});//存储对象而非值
                 }
 
                 output += "<span class='ue-id'>UE-ID=" + ueId + "</span>ACK-TB[0]=" + ACK_TB0 + "NACK-TB[0]=" +
@@ -189,7 +195,7 @@
         }
 
 
-    function generateChart(ueData, xAxisLabels) {
+    function generateChart(ueData, timestamps) {
             // 销毁已存在的图表
             var existingChart = Chart.getChart("ul-bler-chart");
             if (existingChart) {
@@ -215,7 +221,7 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                labels: xAxisLabels, // 使用動態生成的橫軸標籤
+            labels: timestamps, // 使用动态生成的横坐标时间戳数组
                     datasets: datasets
                 },
                 options: {
@@ -229,6 +235,12 @@
                     scales: {
                         x: {
                             type: 'linear',
+                    ticks: {
+                        callback: function(value, index, values) {
+                // 在这里根据索引获取对应的时间戳，然后返回适当的格式
+                return timestamps[value];
+                        }
+                    },
                             position: 'bottom'
                         }
                     }
