@@ -58,46 +58,46 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function parseContent() {
-    // 获取输入的文本区域内容
+            // 獲取輸入的文本區域內容
             var inputText = document.getElementById('inputTextArea').value;
             console.log("Input Text:", inputText);
 
-    // 将文本按行分割
+            // 將文本按行分割
             var lines = inputText.split('\n');
             console.log("Number of Lines:", lines.length);
 
-    // 存储解析结果的字符串
+            // 存儲解析結果的字串
             var output = "";
 
-    // 存储不同UE-ID的UL-BLER数据
+            // 存儲不同UE-ID的UL-BLER資料
             var ueData = {};
-    var timestamps = []; // 存储横坐标时间戳的数组
+            var timestamps = []; // 存儲橫坐標時間戳記的陣列
 
-    // 遍历每一行
+            // 遍歷每一行
             for (var i = 0; i < lines.length; i++) {
                 var line = lines[i].trim();
                 console.log("Processing Line " + (i + 1) + ":", line);
 
-        //检查是否包含"GNB DU Statistics  "
+                //檢查是否包含"GNB DU Statistics  "
                 if (line.startsWith("GNB DU Statistics  ")) {
-            var timestamp = line.substring(19); // 提取时间戳，从第 19 个字符开始
-            timestamps.push(timestamp); // 将时间戳添加到横坐标时间戳数组中
+                    var timestamp = line.substring(19); // 提取時間戳記，從第 19 個字元開始
+                    timestamps.push(timestamp); // 將時間戳記添加到橫坐標時間戳記陣列中
                     continue;
                 }
-        // 检查是否包含 "UE-ID CELL-ID ON-SUL"
+                // 檢查是否包含 "UE-ID CELL-ID ON-SUL"
                 if (line.includes("UE-ID   CELL-ID   ON-SUL")) {
                     // Check if the next line has numbers
                     if (i + 1 < lines.length && /^\d/.test(lines[i + 1].trim())) {
                         i++; // Skip the next line
-                parseCellData(lines, i, ueData, timestamps.length - 1); // 传递时间戳索引
+                        parseCellData(lines, i, ueData, timestamps.length - 1); // 傳遞時間戳記索引
                     }
                 }
             }
 
             // Generate chart for UL-BLER
-    generateChart(ueData, timestamps); // 将横坐标时间戳传递给生成图表的函数
+            generateChart(ueData, timestamps); // 將橫坐標時間戳記傳遞給生成圖表的函數
 
-    // 将结果添加到HTML中
+            // 將結果添加到HTML中
             document.getElementById('output').innerHTML = output;
         }
 
@@ -117,9 +117,9 @@
                     ueData[ueId] = [];
                 }
                 ueData[ueId].push({
-x:timestampIndex,
-y:ul_bler
-});//存储对象而非值
+                    x: timestampIndex,
+                    y: ul_bler
+                }); //存儲物件而非值
             }
 
             var output = "";
@@ -137,7 +137,7 @@ y:ul_bler
                 var dl_bler = "NaN".padEnd(8);
             }
 
-            // 返回結果字符串
+            // 返回結果字串
             output += "<span class='ue-id'>UE-ID=" + ueId + "</span>ACK-TB[0]=" + ACK_TB0 + "NACK-TB[0]=" + NACK_TB0 +
                 "<span class='dl-bler'>DL-BLER=" + dl_bler + "</span>DL-MCS=" +
                 dlMcs +
@@ -175,10 +175,10 @@ y:ul_bler
                     if (!ueData[ueId]) {
                         ueData[ueId] = [];
                     }
-             ueData[ueId].push({
-x:timestampIndex,
-y:ul_bler
-});//存储对象而非值
+                    ueData[ueId].push({
+                        x: timestampIndex,
+                        y: ul_bler
+                    }); //存儲物件而非值
                 }
 
                 output += "<span class='ue-id'>UE-ID=" + ueId + "</span>ACK-TB[0]=" + ACK_TB0 + "NACK-TB[0]=" +
@@ -194,9 +194,8 @@ y:ul_bler
             return output;
         }
 
-
-    function generateChart(ueData, timestamps) {
-            // 销毁已存在的图表
+        function generateChart(ueData, timestamps) {
+            // 銷毀已存在的圖表
             var existingChart = Chart.getChart("ul-bler-chart");
             if (existingChart) {
                 existingChart.destroy();
@@ -207,12 +206,12 @@ y:ul_bler
 
             ueIds.forEach(function (ueId, index) {
                 var data = ueData[ueId];
-        var hue = (360 * index / ueIds.length) % 360; // 使用不同的色调
+                var hue = (360 * index / ueIds.length) % 360; // 使用不同的色調
                 datasets.push({
                     label: 'UE-ID ' + ueId,
                     data: data,
                     fill: false,
-            borderColor: 'hsl(' + hue + ', 70%, 50%)', // 使用HSL颜色模型
+                    borderColor: 'hsl(' + hue + ', 70%, 50%)', // 使用HSL色彩模型
                     tension: 0.1
                 });
             });
@@ -221,7 +220,7 @@ y:ul_bler
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-            labels: timestamps, // 使用动态生成的横坐标时间戳数组
+                    labels: timestamps, // 使用動態生成的橫坐標時間戳記陣列
                     datasets: datasets
                 },
                 options: {
@@ -235,12 +234,12 @@ y:ul_bler
                     scales: {
                         x: {
                             type: 'linear',
-                    ticks: {
-                        callback: function(value, index, values) {
-                // 在这里根据索引获取对应的时间戳，然后返回适当的格式
-                return timestamps[value];
-                        }
-                    },
+                            ticks: {
+                                callback: function (value, index, values) {
+                                    // 在這裡根據索引獲取對應的時間戳記，然後返回適當的格式
+                                    return timestamps[value];
+                                }
+                            },
                             position: 'bottom'
                         }
                     }
@@ -256,7 +255,8 @@ y:ul_bler
             style="line-height: 1;">Dustin_Chen@compal.com</a> or <a href="mailto:chuhpsdustin@gmail.com"
             style="line-height: 1;">chuhpsdustin@gmail.com</a></p>
     <ul>
-        <li><strong>Please paste the whole du_stats_XXX.txt content below, then it will draw different UE-ID UL-BLER</strong>
+        <li><strong>Please paste the whole du_stats_XXX.txt content below, then it will draw different UE-ID
+                UL-BLER</strong>
             <ul>
                 <li>formula: <span style="color: red;">UL-BLER</span> = UL-CRC-FAIL / (UL-CRC-SUCC + UL-CRC-FAIL)</li>
             </ul>
@@ -267,17 +267,12 @@ y:ul_bler
             <pre id="output"></pre>
         </li>
     </ul>
-<div style="max-width: 800px; margin: 0 auto; text-align: left;">
-    <div style="display: inline-block;">
-        <canvas id="ul-bler-chart" width="800" height="450" style="width: 800px; height: 450px;"></canvas>
+    <div style="max-width: 800px; margin: 0 auto; text-align: left;">
+        <div style="display: inline-block;">
+            <canvas id="ul-bler-chart" width="800" height="450" style="width: 800px; height: 450px;"></canvas>
 
+        </div>
     </div>
-</div>
-
-
-
-
-
 
 </body>
 
