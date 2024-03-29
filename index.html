@@ -80,7 +80,7 @@
 
                 //檢查是否包含"GNB DU Statistics  "
                 if (line.startsWith("GNB DU Statistics  ")) {
-                    var timestamp = line.substring(19); // 提取時間戳記，從第 19 個字元開始
+    var timestamp = line.substring(29, 38); // 提取時間戳記，從第 29 個字元到第 38 個字元
                     timestamps.push(timestamp); // 將時間戳記添加到橫坐標時間戳記陣列中
                     continue;
                 }
