@@ -207,11 +207,23 @@
             ueIds.forEach(function (ueId, index) {
                 var data = ueData[ueId];
                 var hue = (360 * index / ueIds.length) % 360; // 使用不同的色調
+                var lineStyle = index % 2 === 0 ? 'dash' : 'dot'; // 判斷線型
+                var borderColor, borderDash;
+
+                if (lineStyle === 'dash') {
+                    borderColor = 'hsl(' + hue + ', 70%, 50%)';
+                    borderDash = [10, 5]; // 虛線
+                } else {
+                    borderColor = 'hsl(' + hue + ', 70%, 50%)';
+                    borderDash = [2, 2]; // 點線
+                }
+
                 datasets.push({
                     label: 'UE-ID ' + ueId,
                     data: data,
                     fill: false,
-                    borderColor: 'hsl(' + hue + ', 70%, 50%)', // 使用HSL色彩模型
+                    borderColor: borderColor,
+                    borderDash: borderDash, // 指定線型
                     tension: 0.1
                 });
             });
