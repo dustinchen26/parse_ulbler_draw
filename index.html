@@ -84,6 +84,15 @@
                     timestamps.push(timestamp); // 將時間戳記添加到橫坐標時間戳記陣列中
                     continue;
                 }
+                
+                // 檢查是否包含 "UE-ID BEAM-ID"
+                if (line.includes("UE-ID     BEAM-ID")) {
+                    // Check if the next line has numbers
+                    if (i + 1 < lines.length && /^\d/.test(lines[i + 1].trim())) {
+                        i++; // Skip the next line
+                        output += parseUEData(lines, i);
+                    }
+                }
                 // 檢查是否包含 "UE-ID CELL-ID ON-SUL"
                 if (line.includes("UE-ID   CELL-ID   ON-SUL")) {
                     // Check if the next line has numbers
@@ -101,6 +110,53 @@
             document.getElementById('output').innerHTML = output;
         }
 
+        function parseUEData(lines, index) {
+            var output = "";
+            console.log("Parsing UE Data at Line " + (index + 1) + ": ", lines[index]);
+
+            var values = lines[index].trim().split(/\s+/);
+            var ueId = values[0].padEnd(8);
+            var dlTpt = values[5].padEnd(8);
+            var ulTpt = values[7].padEnd(8);
+
+            // 繼續解析下一行數字
+            while (index < lines.length) {
+                // 如果是空白行，則繼續讀取下一列
+                if (lines[index].trim() === "") {
+                    index++;
+                    continue;
+                }
+
+                // 如果遇到分隔線，則停止解析
+                if (lines[index].includes(
+                        "--------------------------------------------------------------------------------------------"
+                    )) {
+                    break;
+                }
+
+                // 如果是數字開頭的行，進行解析
+                if (/^\d/.test(lines[index].trim())) {
+                    values = lines[index].trim().split(/\s+/);
+                    ueId = values[0].padEnd(8);
+                    dlTpt = values[5].padEnd(8);
+                    ulTpt = values[7].padEnd(8);
+          /*
+            // Check if both DL-TPT and UL-TPT are not equal to 0.0000
+            if (parseFloat(dlTpt) !== 0 || parseFloat(ulTpt) !== 0) {
+                    output += "<span class='ue-id'>UE-ID=" + ueId + "</span><span class='dl-tpt'>DL-TPT=" + dlTpt +
+                        "</span>  <span class='ul-tpt'>UL-TPT=" + ulTpt + "</span>\n";
+                }
+		   */
+        }
+
+                // 繼續處理下一行
+                index++;
+            }
+
+
+            return output;
+        }
+        
         function parseCellData(lines, index, ueData, timestampIndex) {
             console.log("Parsing Cell Data at Line " + (index + 1) + ": ", lines[index]);
             var values = lines[index].trim().split(/\s+/);
@@ -112,7 +168,7 @@
             var ul_bler = isNaN(ulCrcSucc) || isNaN(ulCrcFail) ? NaN : (ulCrcFail / (ulCrcSucc + ulCrcFail));
 
             // Store UL-BLER data for each UE-ID
-            if (!isNaN(ul_bler)) {
+            if (!isNaN(ul_bler) && (parseFloat(values[5]) !== 0 || parseFloat(values[7]) !== 0)) {
                 if (!ueData[ueId]) {
                     ueData[ueId] = [];
                 }
@@ -171,7 +227,7 @@
                 var ul_bler = isNaN(ulCrcSucc) || isNaN(ulCrcFail) ? NaN : (ulCrcFail / (ulCrcSucc + ulCrcFail));
 
                 // Store UL-BLER data for each UE-ID
-                if (!isNaN(ul_bler)) {
+                if (!isNaN(ul_bler) && (parseFloat(values[5]) !== 0 || parseFloat(values[7]) !== 0)) {
                     if (!ueData[ueId]) {
                         ueData[ueId] = [];
                     }
