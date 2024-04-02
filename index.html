@@ -263,24 +263,23 @@
             ueIds.forEach(function (ueId, index) {
                 var data = ueData[ueId];
                 var hue = (360 * index / ueIds.length) % 360; // 使用不同的色調
-                var lineStyle = index % 2 === 0 ? 'dash' : 'dot'; // 判斷線型
-                var borderColor, borderDash;
+        var borderColor = 'hsl(' + hue + ', 70%, 50%)'; // 指定線的顏色
 
-                if (lineStyle === 'dash') {
-                    borderColor = 'hsl(' + hue + ', 70%, 50%)';
-                    borderDash = [10, 5]; // 虛線
-                } else {
-                    borderColor = 'hsl(' + hue + ', 70%, 50%)';
-                    borderDash = [2, 2]; // 點線
+        // 過濾掉不連續的時間點
+        var filteredData = [];
+        for (var i = 0; i < data.length; i++) {
+            // 如果是第一個時間點或者前一個時間點與當前時間點相鄰，則添加到篩選後的資料中
+            if (i === 0 || data[i].x - data[i - 1].x === 1) {
+                filteredData.push(data[i]);
+            }
                 }
 
                 datasets.push({
                     label: 'UE-ID ' + ueId,
-                    data: data,
+            data: filteredData,
                     fill: false,
                     borderColor: borderColor,
-                    borderDash: borderDash, // 指定線型
-                    tension: 0.1
+            tension: 0.1
                 });
             });
 
@@ -288,7 +287,7 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: timestamps, // 使用動態生成的橫坐標時間戳記陣列
+            labels: timestamps,
                     datasets: datasets
                 },
                 options: {
