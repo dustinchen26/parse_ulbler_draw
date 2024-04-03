@@ -271,6 +271,10 @@
             // 如果是第一個時間點或者前一個時間點與當前時間點相鄰，則添加到篩選後的資料中
             if (i === 0 || data[i].x - data[i - 1].x === 1) {
                 filteredData.push(data[i]);
+                    } else {
+                        // 插入 null 來斷開連接
+                        filteredData.push(null);
+                        filteredData.push(data[i]);
             }
                 }
 
