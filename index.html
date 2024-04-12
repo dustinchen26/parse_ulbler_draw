@@ -80,11 +80,11 @@
 
                 //檢查是否包含"GNB DU Statistics  "
                 if (line.startsWith("GNB DU Statistics  ")) {
-    var timestamp = line.substring(29, 38); // 提取時間戳記，從第 29 個字元到第 38 個字元
+                    var timestamp = line.substring(29, 38); // 提取時間戳記，從第 29 個字元到第 38 個字元
                     timestamps.push(timestamp); // 將時間戳記添加到橫坐標時間戳記陣列中
                     continue;
                 }
-                
+
                 // 檢查是否包含 "UE-ID BEAM-ID"
                 if (line.includes("UE-ID     BEAM-ID")) {
                     // Check if the next line has numbers
@@ -140,14 +140,14 @@
                     ueId = values[0].padEnd(8);
                     dlTpt = values[5].padEnd(8);
                     ulTpt = values[7].padEnd(8);
-          /*
+                    /*
             // Check if both DL-TPT and UL-TPT are not equal to 0.0000
             if (parseFloat(dlTpt) !== 0 || parseFloat(ulTpt) !== 0) {
                     output += "<span class='ue-id'>UE-ID=" + ueId + "</span><span class='dl-tpt'>DL-TPT=" + dlTpt +
                         "</span>  <span class='ul-tpt'>UL-TPT=" + ulTpt + "</span>\n";
                 }
 		   */
-        }
+                }
 
                 // 繼續處理下一行
                 index++;
@@ -156,7 +156,7 @@
 
             return output;
         }
-        
+
         function parseCellData(lines, index, ueData, timestampIndex) {
             console.log("Parsing Cell Data at Line " + (index + 1) + ": ", lines[index]);
             var values = lines[index].trim().split(/\s+/);
@@ -263,27 +263,19 @@
             ueIds.forEach(function (ueId, index) {
                 var data = ueData[ueId];
                 var hue = (360 * index / ueIds.length) % 360; // 使用不同的色調
-        var borderColor = 'hsl(' + hue + ', 70%, 50%)'; // 指定線的顏色
+                var borderColor = 'hsl(' + hue + ', 70%, 50%)'; // 指定線的顏色
 
-        // 過濾掉不連續的時間點
-        var filteredData = [];
-        for (var i = 0; i < data.length; i++) {
-            // 如果是第一個時間點或者前一個時間點與當前時間點相鄰，則添加到篩選後的資料中
-            if (i === 0 || data[i].x - data[i - 1].x === 1) {
-                filteredData.push(data[i]);
-                    } else {
-                        // 插入 null 來斷開連接
-                        filteredData.push(null);
-                        filteredData.push(data[i]);
-            }
-                }
+                // 過濾掉包含 null 值的部分
+                var filteredData = data.filter(function (point) {
+                    return point !== null;
+                });
 
                 datasets.push({
                     label: 'UE-ID ' + ueId,
-            data: filteredData,
+                    data: filteredData,
                     fill: false,
                     borderColor: borderColor,
-            tension: 0.1
+                    tension: 0.1
                 });
             });
 
@@ -291,7 +283,7 @@
             var chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-            labels: timestamps,
+                    labels: timestamps,
                     datasets: datasets
                 },
                 options: {
